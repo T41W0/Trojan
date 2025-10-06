@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Order Tracking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .test-results {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .order-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Order Tracking</h1>
+    
+    <div class="test-section">
+        <h2>Test Order API</h2>
+        <button class="test-button" onclick="testOrderAPI()">Test Order API (ID: 1)</button>
+        <button class="test-button" onclick="getAllOrders()">Get All Orders</button>
+        
+        <div id="test-results" class="test-results" style="display: none;">
+            <h3>Test Results:</h3>
+            <div id="test-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Manual Order Tracking Test</h2>
+        <input type="text" id="orderIdInput" placeholder="Enter Order ID (e.g., 1)" value="1">
+        <button class="test-button" onclick="testSpecificOrder()">Test This Order</button>
+        <button class="test-button" onclick="openOrderPage()">Open Order Page</button>
+        
+        <div id="manual-results" class="test-results" style="display: none;">
+            <h3>Manual Test Results:</h3>
+            <div id="manual-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Available Orders</h2>
+        <div id="orders-display">
+            <p>Click "Get All Orders" to see available orders</p>
+        </div>
+    </div>
+
+    <script>
+        function showResults(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+
+        function log(message, type = 'info', elementId = 'test-output') {
+            const output = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `<p class="${type}">[${timestamp}] ${message}</p>`;
+        }
+
+        async function testOrderAPI() {
+            showResults('test-results');
+            log('🔍 Testing order API with ID: 1...', 'info');
+            
+            try {
+                const response = await fetch('/api/orders/1');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ API Success: Order found`, 'success');
+                    log(`   ID: ${data.data.id}`, 'info');
+                    log(`   Order Number: ${data.data.order_number}`, 'info');
+                    log(`   Status: ${data.data.status}`, 'info');
+                    log(`   Restaurant: ${data.data.restaurant?.name}`, 'info');
+                    log(`   Items: ${data.data.items?.length || 0}`, 'info');
+                } else {
+                    log(`❌ API Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function getAllOrders() {
+            showResults('test-results');
+            log('🔍 Getting all orders...', 'info');
+            
+            try {
+                // This would need a different endpoint to get all orders
+                // For now, let's test a few common order IDs
+                const orderIds = [1, 2, 3, 4, 5];
+                const foundOrders = [];
+                
+                for (const id of orderIds) {
+                    try {
+                        const response = await fetch(`/api/orders/${id}`);
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            foundOrders.push(data.data);
+                            log(`✅ Found order ID: ${id} (${data.data.order_number})`, 'success');
+                        }
+                    } catch (error) {
+                        // Order doesn't exist, continue
+                    }
+                }
+                
+                if (foundOrders.length > 0) {
+                    displayOrders(foundOrders);
+                } else {
+                    log('❌ No orders found', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testSpecificOrder() {
+            const orderId = document.getElementById('orderIdInput').value;
+            showResults('manual-results');
+            log(`🔍 Testing order ID: ${orderId}...`, 'info', 'manual-output');
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Order found successfully!`, 'success', 'manual-output');
+                    log(`   Order Number: ${data.data.order_number}`, 'info', 'manual-output');
+                    log(`   Status: ${data.data.status}`, 'info', 'manual-output');
+                    log(`   Total: £${data.data.total_amount}`, 'info', 'manual-output');
+                } else {
+                    log(`❌ Order not found: ${data.error}`, 'error', 'manual-output');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error', 'manual-output');
+            }
+        }
+
+        function openOrderPage() {
+            const orderId = document.getElementById('orderIdInput').value;
+            if (orderId) {
+                window.open(`/orders/${orderId}`, '_blank');
+            } else {
+                alert('Please enter an order ID first');
+            }
+        }
+
+        function displayOrders(orders) {
+            const display = document.getElementById('orders-display');
+            
+            let html = `<h3>Found ${orders.length} order(s):</h3>`;
+            
+            orders.forEach(order => {
+                html += `
+                    <div class="order-card">
+                        <h4>📦 Order #${order.order_number}</h4>
+                        <p><strong>ID:</strong> ${order.id}</p>
+                        <p><strong>Status:</strong> ${order.status}</p>
+                        <p><strong>Restaurant:</strong> ${order.restaurant?.name}</p>
+                        <p><strong>Total:</strong> £${order.total_amount}</p>
+                        <p><strong>Items:</strong> ${order.items?.length || 0}</p>
+                        <button class="test-button" onclick="window.open('/orders/${order.id}', '_blank')">
+                            Open Order Page
+                        </button>
+                    </div>
+                `;
+            });
+            
+            display.innerHTML = html;
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('🧪 Order tracking test page loaded');
+            testOrderAPI();
+        });
+    </script>
+</body>
+</html>

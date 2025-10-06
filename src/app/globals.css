@@ -1,26 +1,200 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Custom font stack */
+@layer base {
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Custom Nigerian-inspired color palette */
+:root {
+  /* Primary Colors - Inspired by Nigerian flag and cuisine */
+  --nigerian-green: #008751;      /* Deep forest green */
+  --nigerian-gold: #FFD700;       /* Rich gold */
+  --nigerian-orange: #FF6B35;     /* Vibrant orange */
+  --nigerian-red: #E63946;        /* Warm red */
+  
+  /* Secondary Colors - Food-inspired */
+  --jollof-orange: #FF8C42;       /* Jollof rice orange */
+  --plantain-yellow: #F4D03F;     /* Plantain yellow */
+  --pepper-red: #C0392B;          /* Pepper red */
+  --palm-oil-red: #E74C3C;        /* Palm oil red */
+  --yam-purple: #8E44AD;          /* Purple yam */
+  --coconut-white: #F8F9FA;       /* Coconut white */
+  --charcoal-black: #2C3E50;      /* Charcoal black */
+  
+  /* Accent Colors */
+  --accent-teal: #17A2B8;         /* Teal accent */
+  --accent-coral: #FF7F7F;        /* Coral accent */
+  --accent-lime: #32CD32;         /* Lime accent */
+}
+
+/* Custom gradient utilities */
+.gradient-bg {
+  background: linear-gradient(135deg, var(--nigerian-green) 0%, var(--nigerian-gold) 50%, var(--jollof-orange) 100%);
+}
+
+.gradient-nigerian {
+  background: linear-gradient(135deg, var(--nigerian-green) 0%, var(--nigerian-gold) 100%);
+}
+
+.gradient-food {
+  background: linear-gradient(135deg, var(--jollof-orange) 0%, var(--pepper-red) 100%);
+}
+
+.gradient-warm {
+  background: linear-gradient(135deg, var(--plantain-yellow) 0%, var(--nigerian-orange) 100%);
+}
+
+.gradient-cool {
+  background: linear-gradient(135deg, var(--accent-teal) 0%, var(--nigerian-green) 100%);
+}
+
+.gradient-sunset {
+  background: linear-gradient(135deg, var(--nigerian-orange) 0%, var(--palm-oil-red) 100%);
+}
+
+.gradient-earth {
+  background: linear-gradient(135deg, var(--charcoal-black) 0%, var(--yam-purple) 100%);
+}
+
+/* Text gradients */
+.text-gradient-nigerian {
+  background: linear-gradient(135deg, var(--nigerian-green) 0%, var(--nigerian-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-food {
+  background: linear-gradient(135deg, var(--jollof-orange) 0%, var(--pepper-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--plantain-yellow) 0%, var(--nigerian-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom animations */
+@keyframes nigerian-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 107, 53, 0);
+  }
+}
+
+@keyframes food-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-nigerian-pulse {
+  animation: nigerian-pulse 2s infinite;
+}
+
+.animate-food-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: food-shimmer 2s infinite;
+}
+
+/* Custom button styles */
+.btn-nigerian {
+  background: linear-gradient(135deg, var(--nigerian-green) 0%, var(--nigerian-gold) 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-nigerian:hover {
+  background: linear-gradient(135deg, var(--jollof-orange) 0%, var(--pepper-red) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.btn-food {
+  background: linear-gradient(135deg, var(--jollof-orange) 0%, var(--pepper-red) 100%);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-food:hover {
+  background: linear-gradient(135deg, var(--plantain-yellow) 0%, var(--nigerian-orange) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom card styles */
+.card-nigerian {
+  background: linear-gradient(135deg, rgba(255, 248, 240, 0.9) 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+
+.card-nigerian::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--nigerian-green), var(--nigerian-gold));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+}
+
+.food-card {
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.food-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 135, 81, 0.2);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Test</title>
+</head>
+<body>
+    <h1>Location Test</h1>
+    <button id="getLocation">Get Current Location</button>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('getLocation').addEventListener('click', () => {
+            const resultDiv = document.getElementById('result');
+            
+            if (!navigator.geolocation) {
+                resultDiv.innerHTML = '<p>Geolocation is not supported by this browser.</p>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<p>Getting location...</p>';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    resultDiv.innerHTML = `
+                        <p><strong>Location found!</strong></p>
+                        <p>Latitude: ${lat}</p>
+                        <p>Longitude: ${lng}</p>
+                        <p>Accuracy: ${position.coords.accuracy} meters</p>
+                    `;
+                },
+                (error) => {
+                    let errorMessage = 'Error getting location: ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Permission denied by user.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Location request timed out.';
+                            break;
+                        default:
+                            errorMessage += 'Unknown error occurred.';
+                            break;
+                    }
+                    resultDiv.innerHTML = `<p style="color: red;">${errorMessage}</p>`;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Notification Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .warning { color: #f59e0b; }
+        .test-results {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .status-step {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+        .status-step.active {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        .status-step.completed {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .notification-demo {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔔 Order Notification System Test</h1>
+    
+    <div class="test-section">
+        <h2>📱 Browser Notification Test</h2>
+        <button class="test-button" onclick="requestNotificationPermission()">Request Permission</button>
+        <button class="test-button" onclick="testBrowserNotification()">Test Notification</button>
+        <button class="test-button" onclick="testOrderUpdateNotification()">Test Order Update</button>
+        
+        <div id="notification-status" class="test-results" style="display: none;">
+            <h3>Notification Status:</h3>
+            <div id="notification-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔄 Order Status Simulation</h2>
+        <div class="notification-demo">
+            <strong>📋 Order Status Flow:</strong><br>
+            1. Order Placed → 2. Order Confirmed → 3. Preparing Food → 4. Ready for Pickup → 5. Out for Delivery → 6. Delivered
+        </div>
+        
+        <input type="text" id="orderIdInput" placeholder="Enter Order ID (e.g., 1)" value="1">
+        <select id="statusSelect">
+            <option value="pending">Order Placed</option>
+            <option value="confirmed">Order Confirmed</option>
+            <option value="preparing">Preparing Food</option>
+            <option value="ready">Ready for Pickup</option>
+            <option value="out_for_delivery">Out for Delivery</option>
+            <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
+        </select>
+        
+        <button class="test-button" onclick="updateOrderStatus()">Update Order Status</button>
+        <button class="test-button" onclick="simulateFullOrderFlow()">Simulate Full Order Flow</button>
+        
+        <div id="status-results" class="test-results" style="display: none;">
+            <h3>Status Update Results:</h3>
+            <div id="status-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Order Tracking Test</h2>
+        <button class="test-button" onclick="testOrderTracking()">Test Order Tracking</button>
+        <button class="test-button" onclick="openOrderPage()">Open Order Page</button>
+        
+        <div id="tracking-results" class="test-results" style="display: none;">
+            <h3>Tracking Results:</h3>
+            <div id="tracking-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Notification Types Demo</h2>
+        <button class="test-button" onclick="testEmailNotification()">Test Email Notification</button>
+        <button class="test-button" onclick="testSMSNotification()">Test SMS Notification</button>
+        <button class="test-button" onclick="testToastNotification()">Test Toast Notification</button>
+        
+        <div id="notification-types-results" class="test-results" style="display: none;">
+            <h3>Notification Types Test:</h3>
+            <div id="notification-types-output"></div>
+        </div>
+    </div>
+
+    <script>
+        let notificationPermission = 'default';
+        
+        function showResults(elementId) {
+            document.getElementById(elementId).style.display = 'block';
+        }
+
+        function log(message, type = 'info', elementId) {
+            const output = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `<p class="${type}">[${timestamp}] ${message}</p>`;
+        }
+
+        async function requestNotificationPermission() {
+            showResults('notification-status');
+            
+            if (!('Notification' in window)) {
+                log('❌ This browser does not support notifications', 'error', 'notification-output');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                notificationPermission = permission;
+                
+                if (permission === 'granted') {
+                    log('✅ Notification permission granted!', 'success', 'notification-output');
+                } else if (permission === 'denied') {
+                    log('❌ Notification permission denied', 'error', 'notification-output');
+                } else {
+                    log('⚠️ Notification permission dismissed', 'warning', 'notification-output');
+                }
+            } catch (error) {
+                log(`❌ Error requesting permission: ${error.message}`, 'error', 'notification-output');
+            }
+        }
+
+        function testBrowserNotification() {
+            showResults('notification-status');
+            
+            if (Notification.permission === 'granted') {
+                new Notification('Test Notification', {
+                    body: 'This is a test notification from Tega\'s Restaurant!',
+                    icon: '/favicon.ico'
+                });
+                log('✅ Test notification sent!', 'success', 'notification-output');
+            } else {
+                log('❌ Notification permission not granted. Click "Request Permission" first.', 'error', 'notification-output');
+            }
+        }
+
+        function testOrderUpdateNotification() {
+            showResults('notification-status');
+            
+            if (Notification.permission === 'granted') {
+                new Notification('Order Update - #12345', {
+                    body: 'Your order from Tega\'s Restaurant status has been updated to: Preparing Food',
+                    icon: '/favicon.ico',
+                    tag: 'order-update'
+                });
+                log('✅ Order update notification sent!', 'success', 'notification-output');
+            } else {
+                log('❌ Notification permission not granted. Click "Request Permission" first.', 'error', 'notification-output');
+            }
+        }
+
+        async function updateOrderStatus() {
+            const orderId = document.getElementById('orderIdInput').value;
+            const status = document.getElementById('statusSelect').value;
+            
+            showResults('status-results');
+            log(`🔄 Updating order ${orderId} to status: ${status}...`, 'info', 'status-output');
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Order status updated successfully!`, 'success', 'status-output');
+                    log(`   Status: ${data.data.status}`, 'info', 'status-output');
+                    log(`   Restaurant: ${data.data.restaurant?.name}`, 'info', 'status-output');
+                    
+                    // Show notification for status update
+                    if (Notification.permission === 'granted') {
+                        const statusMessages = {
+                            pending: 'Order Placed',
+                            confirmed: 'Order Confirmed',
+                            preparing: 'Preparing Food',
+                            ready: 'Ready for Pickup',
+                            out_for_delivery: 'Out for Delivery',
+                            delivered: 'Delivered',
+                            cancelled: 'Cancelled'
+                        };
+                        
+                        new Notification(`Order Update - #${orderId}`, {
+                            body: `Your order from ${data.data.restaurant?.name} status has been updated to: ${statusMessages[status]}`,
+                            icon: '/favicon.ico'
+                        });
+                    }
+                } else {
+                    log(`❌ Failed to update order status: ${data.error}`, 'error', 'status-output');
+                }
+            } catch (error) {
+                log(`❌ Error updating order status: ${error.message}`, 'error', 'status-output');
+            }
+        }
+
+        async function simulateFullOrderFlow() {
+            const orderId = document.getElementById('orderIdInput').value;
+            showResults('status-results');
+            
+            log(`🎬 Starting full order flow simulation for order ${orderId}...`, 'info', 'status-output');
+            
+            const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered'];
+            
+            for (let i = 0; i < statuses.length; i++) {
+                const status = statuses[i];
+                log(`📋 Step ${i + 1}: Updating to ${status}...`, 'info', 'status-output');
+                
+                try {
+                    const response = await fetch(`/api/orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ status })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        log(`✅ ${status} - Success!`, 'success', 'status-output');
+                    } else {
+                        log(`❌ ${status} - Failed: ${data.error}`, 'error', 'status-output');
+                    }
+                } catch (error) {
+                    log(`❌ ${status} - Error: ${error.message}`, 'error', 'status-output');
+                }
+                
+                // Wait 2 seconds between status updates
+                if (i < statuses.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                }
+            }
+            
+            log(`🎉 Full order flow simulation completed!`, 'success', 'status-output');
+        }
+
+        async function testOrderTracking() {
+            const orderId = document.getElementById('orderIdInput').value;
+            showResults('tracking-results');
+            
+            log(`🔍 Testing order tracking for ID: ${orderId}...`, 'info', 'tracking-output');
+            
+            try {
+                const response = await fetch(`/api/orders/${orderId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Order found successfully!`, 'success', 'tracking-output');
+                    log(`   Order Number: ${data.data.order_number || 'N/A'}`, 'info', 'tracking-output');
+                    log(`   Status: ${data.data.status}`, 'info', 'tracking-output');
+                    log(`   Restaurant: ${data.data.restaurant?.name}`, 'info', 'tracking-output');
+                    log(`   Total: £${data.data.total_amount}`, 'info', 'tracking-output');
+                    log(`   Items: ${data.data.items?.length || 0}`, 'info', 'tracking-output');
+                } else {
+                    log(`❌ Order not found: ${data.error}`, 'error', 'tracking-output');
+                }
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error', 'tracking-output');
+            }
+        }
+
+        function openOrderPage() {
+            const orderId = document.getElementById('orderIdInput').value;
+            if (orderId) {
+                window.open(`/orders/${orderId}`, '_blank');
+            } else {
+                alert('Please enter an order ID first');
+            }
+        }
+
+        async function testEmailNotification() {
+            showResults('notification-types-results');
+            log('📧 Testing email notification...', 'info', 'notification-types-output');
+            
+            try {
+                const response = await fetch('/api/notifications/email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: 'test@example.com',
+                        subject: 'Order Update Test',
+                        template: 'order-update',
+                        data: {
+                            orderId: '12345',
+                            status: 'preparing',
+                            restaurantName: 'Tega\'s Restaurant'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ Email notification test successful!', 'success', 'notification-types-output');
+                } else {
+                    log(`❌ Email notification test failed: ${data.error}`, 'error', 'notification-types-output');
+                }
+            } catch (error) {
+                log(`❌ Email notification test error: ${error.message}`, 'error', 'notification-types-output');
+            }
+        }
+
+        async function testSMSNotification() {
+            showResults('notification-types-results');
+            log('📱 Testing SMS notification...', 'info', 'notification-types-output');
+            
+            try {
+                const response = await fetch('/api/notifications/sms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: '+1234567890',
+                        message: 'Your order from Tega\'s Restaurant is being prepared!'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    log('✅ SMS notification test successful!', 'success', 'notification-types-output');
+                } else {
+                    log(`❌ SMS notification test failed: ${data.error}`, 'error', 'notification-types-output');
+                }
+            } catch (error) {
+                log(`❌ SMS notification test error: ${error.message}`, 'error', 'notification-types-output');
+            }
+        }
+
+        function testToastNotification() {
+            showResults('notification-types-results');
+            log('🍞 Toast notification would appear here (requires react-hot-toast)', 'info', 'notification-types-output');
+            log('✅ Toast notification test completed!', 'success', 'notification-types-output');
+        }
+
+        // Auto-request permission on page load
+        window.addEventListener('load', () => {
+            console.log('🔔 Order notification test page loaded');
+            if ('Notification' in window && Notification.permission === 'default') {
+                setTimeout(() => {
+                    requestNotificationPermission();
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

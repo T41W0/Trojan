@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Orders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .success { color: #10b981; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .test-results {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .order-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test Admin Orders API</h1>
+    
+    <div class="test-section">
+        <h2>API Tests</h2>
+        <button class="test-button" onclick="testAdminOrders()">Test Admin Orders API</button>
+        <button class="test-button" onclick="testOrdersAPI()">Test Orders API</button>
+        <button class="test-button" onclick="checkDatabase()">Check Database Connection</button>
+        
+        <div id="test-results" class="test-results" style="display: none;">
+            <h3>Test Results:</h3>
+            <div id="test-output"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Orders Display</h2>
+        <div id="orders-display">
+            <p>Click "Test Admin Orders API" to load orders</p>
+        </div>
+    </div>
+
+    <script>
+        function showResults() {
+            document.getElementById('test-results').style.display = 'block';
+        }
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('test-output');
+            const timestamp = new Date().toLocaleTimeString();
+            output.innerHTML += `<p class="${type}">[${timestamp}] ${message}</p>`;
+        }
+
+        async function testAdminOrders() {
+            showResults();
+            log('🔍 Testing admin orders API...', 'info');
+            
+            try {
+                const response = await fetch('/api/admin/orders');
+                const data = await response.json();
+                
+                log(`📊 Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                log(`📊 Response data:`, 'info');
+                log(JSON.stringify(data, null, 2), 'info');
+                
+                if (data.success) {
+                    log(`✅ API Success: ${data.orders.length} orders found`, 'success');
+                    displayOrders(data.orders);
+                } else {
+                    log(`❌ API Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Network Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function testOrdersAPI() {
+            showResults();
+            log('🔍 Testing general orders API...', 'info');
+            
+            try {
+                // Test with order ID 1
+                const response = await fetch('/api/orders/1');
+                const data = await response.json();
+                
+                log(`📊 Orders API Response:`, 'info');
+                log(JSON.stringify(data, null, 2), 'info');
+                
+                if (data.success) {
+                    log(`✅ Orders API Success: Order found`, 'success');
+                } else {
+                    log(`❌ Orders API Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Orders API Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function checkDatabase() {
+            showResults();
+            log('🔍 Checking database connection...', 'info');
+            
+            try {
+                // Test a simple API that should work
+                const response = await fetch('/api/restaurants');
+                const data = await response.json();
+                
+                if (data.success) {
+                    log(`✅ Database connection working: ${data.data.length} restaurants found`, 'success');
+                } else {
+                    log(`❌ Database connection issue: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Database connection error: ${error.message}`, 'error');
+            }
+        }
+
+        function displayOrders(orders) {
+            const display = document.getElementById('orders-display');
+            
+            if (orders.length === 0) {
+                display.innerHTML = '<p class="error">❌ No orders found</p>';
+                return;
+            }
+
+            let html = `<h3>Found ${orders.length} order(s):</h3>`;
+            
+            orders.forEach(order => {
+                html += `
+                    <div class="order-card">
+                        <h4>📦 Order #${order.order_number}</h4>
+                        <p><strong>ID:</strong> ${order.id}</p>
+                        <p><strong>Status:</strong> ${order.status}</p>
+                        <p><strong>Customer:</strong> ${order.customer_name}</p>
+                        <p><strong>Restaurant:</strong> ${order.restaurant_name}</p>
+                        <p><strong>Total:</strong> £${order.total_amount}</p>
+                        <p><strong>Created:</strong> ${order.created_at}</p>
+                    </div>
+                `;
+            });
+            
+            display.innerHTML = html;
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('🧪 Admin orders test page loaded');
+            testAdminOrders();
+        });
+    </script>
+</body>
+</html>
